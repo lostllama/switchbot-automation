@@ -1,1 +1,1 @@
-{"IsHeaterOn":false,"MinTemperature":21.0,"MaxTemperature":21.5}
+{"IsHeaterOn":false,"MinTemperature":21.0,"MaxTemperature":21.5,"LastChecked":"2025-02-03T10:53:48.7390248Z"}

@@ -5,8 +5,16 @@
 <style>
 .container {
     display:grid;
+    font-size: 3vw;
     grid-gap: 5px;
-    grid-template-columns: 150px 200px;
+    grid-template-columns: 30vw 1fr;
+    width: 100vw;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 5vw;
 }
 
 .controls {
@@ -15,6 +23,11 @@
         border-left: 1px solid #ccc;
         margin-left: 5px;
     }
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+    font-size: 3vw;
 }
 
 .temp-cold {
