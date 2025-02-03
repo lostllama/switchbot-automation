@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  switchbot-app:
+    image: switchbot-app
+    build:
+      context: .
+      args:
+        BUILD_CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
+      dockerfile: SwitchBot/Dockerfile

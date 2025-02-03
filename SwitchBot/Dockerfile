@@ -11,7 +11,7 @@ COPY ["SwitchBot/SwitchBot.csproj", "SwitchBot/"]
 RUN dotnet restore "./SwitchBot/SwitchBot.csproj"
 COPY . .
 WORKDIR "/src/SwitchBot"
-RUN dotnet build "./SwitchBot.csproj" -c $BUILD_CONFIGURATION -o /app/build -r linux/arm
+RUN dotnet build "./SwitchBot.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
