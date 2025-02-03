@@ -65,6 +65,7 @@ namespace SwitchBot
                     else
                     {
                         Console.WriteLine("Heater is currently {0}", isHeaterOn ? "on" : "off");
+                        await _stateService.UpdateStateAsync(s => s.LastChecked = DateTime.UtcNow, stoppingToken);
                     }
                 }
 
