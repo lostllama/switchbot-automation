@@ -50,7 +50,7 @@ namespace SwitchBot
                 var changeItem = await _switchBotConditions.GetConditionsAsync(_options.Value.HubId, cancellationToken: stoppingToken);
 
                 // Update current heater status periodically
-                if ((DateTime.UtcNow.ToUniversalTime() - _stateService.LastChecked).TotalSeconds >= 60)
+                if ((DateTime.UtcNow.ToUniversalTime() - _stateService.LastChecked).TotalSeconds >= 300)
                 {
                     // Turn off the heater if it's on and we think it should be off
                     var isHeaterBelievedOn = _stateService.IsHeaterOn;
@@ -99,12 +99,10 @@ namespace SwitchBot
                 if (turnOff)
                 {
                     await _heaterService.TurnHeaterOffAsync(stoppingToken);
-                    Console.WriteLine("Heater turned off.");
                 }
                 else if (turnOn)
                 {
                     await _heaterService.TurnHeaterOnAsync(stoppingToken);
-                    Console.WriteLine("Heater turned on.");
                 }
 
                 await Task.Delay(waitPeriod, stoppingToken);

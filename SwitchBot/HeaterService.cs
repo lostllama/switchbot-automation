@@ -61,7 +61,7 @@ namespace SwitchBot
             {
                 return;
             }
-            Console.WriteLine("Turning heater on");
+            Console.WriteLine(">>> Turning heater on");
             await _switchBot.PressButtonAsync(_options.Value.HeaterId, cancellationToken);
             await _stateService.UpdateStateAsync(s =>
             {
@@ -76,7 +76,7 @@ namespace SwitchBot
             {
                 return;
             }
-            Console.WriteLine("Turning heater off");
+            Console.WriteLine(">>> Turning heater off");
             await _switchBot.PressButtonAsync(_options.Value.HeaterId, cancellationToken);
             await _stateService.UpdateStateAsync(s =>
             {
