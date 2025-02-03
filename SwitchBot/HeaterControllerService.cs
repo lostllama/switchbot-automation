@@ -82,6 +82,7 @@ namespace SwitchBot
                 }
 
                 lastKnownTemperature = changeItem.After.Temperature;
+                lastProcessedTemperature = changeItem.After.Temperature;
 
                 var isTooHot = changeItem.After.Temperature > _stateService.MaxTemperature;
                 var turnOff = isTooHot && _stateService.IsHeaterOn;
