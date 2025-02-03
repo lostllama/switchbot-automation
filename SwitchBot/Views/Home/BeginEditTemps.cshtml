@@ -1,0 +1,23 @@
+﻿@using SwitchBot.Controllers
+@using SwitchBot.ViewModels
+@model ConfigModel
+
+<style>
+    .container {
+        display: grid;
+        grid-gap: 5px;
+        grid-template-columns: 150px 200px;
+    }
+</style>
+
+<form asp-action="@nameof(HomeController.UpdateTemps)" method="post" id="tempsForm">
+    <div class="container">
+        <div>Min Temperature</div>
+        <div><input type="number" min="0" max="30" name="MinTemperature" asp-for="MinTemperature" value="@Model.MinTemperature" step="0.1" /></div>
+        <div>Max Temperature</div>
+        <div><input type="number" min="0" max="30" name="MaxTemperature" asp-for="MaxTemperature" value="@Model.MaxTemperature" step="0.1" /></div>
+    </div>
+    <br />
+    <input type="button" value="Cancel" onclick="window.history.back();" />
+    <input type="submit" value="Save" />
+</form>

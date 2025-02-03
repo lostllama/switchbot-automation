@@ -1,0 +1,82 @@
+﻿@using SwitchBot.Controllers
+@using SwitchBot.ViewModels
+@model StatusModel
+
+<style>
+.container {
+    display:grid;
+    grid-gap: 5px;
+    grid-template-columns: 150px 200px;
+}
+
+.controls {
+    *:not(:first-child) {
+        padding-left: 5px;
+        border-left: 1px solid #ccc;
+        margin-left: 5px;
+    }
+}
+
+.temp-cold {
+    color: #8B0000;
+}
+
+.temp-warm {
+    color: #008B00;
+}
+</style>
+
+<h1>Status</h1>
+<div class="container">
+    <div>Heater Status</div>
+    <div>@(Model.IsHeaterOn ? "On" : "Off")</div>
+
+    <div>Service Mode</div>
+    <div>@(Model.ServiceEnabled ? "Automatic" : "Manual")</div>
+
+    <div>Min Temperature</div>
+    <div>
+        @Model.MinTemperature.ToString("0.##")&#xb0;C
+    </div>
+
+    <div>Max Temperature</div>
+    <div>
+        @Model.MaxTemperature.ToString("0.##")&#xb0;C
+    </div>
+
+    <div>Current Temperature</div>
+    <div>
+        @{
+            string temperatureClass = Model.CurrentTemperature <= Model.MinTemperature ? "temp-cold" : "temp-warm";
+        }
+        <span class="@temperatureClass">@Model.CurrentTemperature.ToString("0.##")&#xb0;C</span>
+    </div>
+</div>
+<br />
+<div class="controls">
+    @if (Model.ServiceEnabled)
+    {
+        @Html.ActionLink("Manual", nameof(HomeController.SetMode), new { isAutomatic = false, turnHeaterOff = false })
+        @if (Model.IsHeaterOn)
+        {
+            @Html.ActionLink("Manual (turn heater off)", nameof(HomeController.SetMode), new { isAutomatic = false, turnHeaterOff = true })
+        }
+    }
+    else
+    {
+        @Html.ActionLink("Automatic", nameof(HomeController.SetMode), new { isAutomatic = true, turnHeaterOff = false })
+    }
+    
+    @if (@Model.IsHeaterOn)
+    {
+        @Html.ActionLink("Turn heater off", nameof(HomeController.SetHeaterStatus), new { turnHeaterOn = false })
+    }
+    else 
+    {
+        @Html.ActionLink("Turn heater on", nameof(HomeController.SetHeaterStatus), new { turnHeaterOn = true })
+    }
+    
+    @Html.ActionLink("Edit temperatures", nameof(HomeController.BeginEditTemps))
+    @Html.ActionLink("Refresh data", nameof(HomeController.RefreshStatus))
+
+</div>
