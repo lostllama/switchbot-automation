@@ -17,6 +17,7 @@ namespace SwitchBot
         public bool ServiceEnabled { get; set; } = false;
         public float MinTemperature { get; set; } = 10f;
         public float MaxTemperature { get; set; } = 22f;
+        public DateTime LastChecked { get; set; } = DateTime.MinValue;
 
         public StateService(IOptions<OfficeOptions> options)
         {

@@ -58,7 +58,13 @@ namespace SwitchBot
             app.UseMvcWithDefaultRoute();
 
             await app.Services.GetRequiredService<StateService>().InitializeStateAsync();
-            await app.Services.GetRequiredService<HeaterService>().TurnHeaterOffAsync();
+            {
+                var heaterService = app.Services.GetRequiredService<HeaterService>();
+                if (await heaterService.IsHeaterOnAsync())
+                {
+                    await heaterService.TurnHeaterOffAsync();
+                }
+            }
 
             app.Run();
 

@@ -38,9 +38,6 @@ namespace SwitchBot
             const float temperatureCreepThreshold = 0.5f;
             var waitPeriod = TimeSpan.FromSeconds(30);
 
-            var isHeaterOn = await _heaterService.IsHeaterOnAsync(cancellationToken: stoppingToken);
-            Console.WriteLine("Heater is currently {0}.", (isHeaterOn ? "on" : "off"));
-
             bool isFirstStart = false;
 
             var initialStatus = (await _switchBotConditions.GetConditionsAsync(_options.Value.HubId, cancellationToken: stoppingToken)).After;
@@ -49,26 +46,27 @@ namespace SwitchBot
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Check that the expected status is the same as what we're observing through temperature changes
+                // Get current stats
                 var changeItem = await _switchBotConditions.GetConditionsAsync(_options.Value.HubId, cancellationToken: stoppingToken);
-                //var temperatureDiff = changeItem.After.Temperature - lastKnownTemperature;
-                //if (temperatureDiff >= temperatureCreepThreshold || temperatureDiff <= -temperatureCreepThreshold)
-                //{
-                //    var expectedHeaterState = _stateService.IsHeaterOn;
-                //    var actualHeaterState = await _heaterService.IsHeaterOnAsync(forceRefresh: true, cancellationToken: stoppingToken);
-                //    // if there is a difference in states, we should rectify that
-                //    if (actualHeaterState != expectedHeaterState)
-                //    {
-                //        if (expectedHeaterState)
-                //        {
-                //            await _heaterService.TurnHeaterOnAsync(stoppingToken);
-                //        }
-                //        else
-                //        {
-                //            await _heaterService.TurnHeaterOffAsync(stoppingToken);
-                //        }
-                //    }
-                //}
+
+                // Update current heater status periodically
+                if ((DateTime.UtcNow.ToUniversalTime() - _stateService.LastChecked).TotalSeconds >= 60)
+                {
+                    // Turn off the heater if it's on and we think it should be off
+                    var isHeaterBelievedOn = _stateService.IsHeaterOn;
+                    var isHeaterOn = await _heaterService.IsHeaterOnAsync(forceRefresh: true, stoppingToken);
+
+                    var temperatureDiff = changeItem.After.Temperature - lastKnownTemperature;
+                    if (temperatureDiff >= temperatureCreepThreshold && !isHeaterBelievedOn && isHeaterOn)
+                    {
+                        Console.WriteLine("Heater was believed to be off, but is actually on. Turning off.");
+                        await _heaterService.TurnHeaterOffAsync(stoppingToken);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Heater is currently {0}", isHeaterOn ? "on" : "off");
+                    }
+                }
 
                 // If we're running manual, we should quit
                 if (!_stateService.ServiceEnabled)
@@ -77,17 +75,19 @@ namespace SwitchBot
                     continue;
                 }
 
+                // The last temperature check was too recent
                 if (lastProcessedTemperature == changeItem.After.Temperature)
                 {
                     continue;
                 }
+
                 lastKnownTemperature = changeItem.After.Temperature;
 
                 var isTooHot = changeItem.After.Temperature > _stateService.MaxTemperature;
-                var turnOff = isTooHot && isHeaterOn;
+                var turnOff = isTooHot && _stateService.IsHeaterOn;
 
                 var isTooCold = changeItem.After.Temperature < _stateService.MinTemperature;
-                var turnOn = isTooCold && !isHeaterOn;
+                var turnOn = isTooCold && !_stateService.IsHeaterOn;
 
                 if (!isTooCold && !isTooHot && isFirstStart)
                 {

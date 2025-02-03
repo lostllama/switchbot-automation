@@ -34,7 +34,7 @@ namespace SwitchBot
         {
             string cacheKey = $"plugStatus_{_options.Value.PlugId}";
             PlugModel plugStatus;
-            if (!forceRefresh 
+            if (!forceRefresh
                 && _memoryCache.TryGetValue<PlugModel>(cacheKey, out var existingPlugStatus)
                 && existingPlugStatus is not null)
             {
@@ -47,33 +47,34 @@ namespace SwitchBot
             }
 
             bool isHeaterOn = plugStatus.Wattage >= _wattageThreshold;
-            if (isHeaterOn != _stateService.IsHeaterOn)
+            await _stateService.UpdateStateAsync(s =>
             {
-                await _stateService.UpdateStateAsync(s => s.IsHeaterOn = isHeaterOn, cancellationToken);
-            }
+                s.IsHeaterOn = isHeaterOn;
+                s.LastChecked = DateTime.UtcNow;
+            }, cancellationToken);
             return isHeaterOn;
         }
 
         public async Task TurnHeaterOnAsync(CancellationToken cancellationToken = default)
         {
-            var isHeaterOn = await IsHeaterOnAsync(cancellationToken: cancellationToken);
-            if (isHeaterOn)
-            {
-                return;
-            }
-
+            Console.WriteLine("Turning heater on");
             await _switchBot.PressButtonAsync(_options.Value.HeaterId, cancellationToken);
-            await _stateService.UpdateStateAsync(s => s.IsHeaterOn = true, cancellationToken);
+            await _stateService.UpdateStateAsync(s =>
+            {
+                s.IsHeaterOn = true;
+                s.LastChecked = DateTime.UtcNow;
+            }, cancellationToken);
         }
 
         public async Task TurnHeaterOffAsync(CancellationToken cancellationToken = default)
         {
-            var isHeaterOn = await IsHeaterOnAsync(cancellationToken: cancellationToken);
-            if (!isHeaterOn)
-            {
-                return;
-            }
+            Console.WriteLine("Turning heater off");
             await _switchBot.PressButtonAsync(_options.Value.HeaterId, cancellationToken);
+            await _stateService.UpdateStateAsync(s =>
+            {
+                s.IsHeaterOn = false;
+                s.LastChecked = DateTime.UtcNow;
+            }, cancellationToken);
         }
     }
 }
